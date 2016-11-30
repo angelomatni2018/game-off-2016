@@ -31,7 +31,8 @@ work fine. To build the project, create an empty project in Unity, copy the Asse
 Project Settings folder into this project. Then go to File > Build & Run. Choose your platform
 and then click Build, or Build and Run. 
 
-In case this process is too frustrating, you can just download the built version I have on 
-Git. 
+In case this process is too frustrating, you can just download the built version in this repo.
+This includes the build.exe and build_data directory. build_data must be in the same directory 
+as the build.exe executable in order for it to run.
 
 ## Enjoy!
