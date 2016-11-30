@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class UIFramework : MonoBehaviour {
@@ -9,14 +10,21 @@ public class UIFramework : MonoBehaviour {
 	public Vector4 nbInInventBounds;
 
 	Society society;
-	GameObject joinButton, unjoinButton;
+	Narrator narrator;
+	GameObject joinButton, unjoinButton, continueButton;
+
+	bool finished;
 
 	void Awake() {
+		narrator = GameObject.Find ("Scientist").GetComponent<Narrator> ();
 		society = ((GameObject)GameObject.Find("ExperimentHolder")).GetComponent<Society> ();
 		joinButton = GameObject.Find ("JoinButton");
 		unjoinButton = GameObject.Find ("UnjoinButton");
+		continueButton = GameObject.Find ("ContinueButton");
 		joinButton.SetActive (true);
 		unjoinButton.SetActive (false);
+
+		finished = false;
 	}
 
 	public void SpawnFromFactory() {
@@ -34,6 +42,34 @@ public class UIFramework : MonoBehaviour {
 		if (society.TriggerEndJoin ()) {
 			joinButton.SetActive (true);
 			unjoinButton.SetActive (false);
+		}
+	}
+
+	public void QuitLevel() {
+		UnityEngine.SceneManagement.SceneManager.LoadScene ("mainmenu");
+	}
+
+	public void ReloadLevel() {
+		UnityEngine.SceneManagement.SceneManager.LoadScene (UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name);
+	}
+
+	public void ReportFinished() {
+		continueButton.SetActive (true);
+		continueButton.GetComponentInChildren<Text> ().text = "Next Level";
+		finished = true;
+	}
+
+	public void ToggleContinueButton(bool visible) {
+		if (!finished) {
+			continueButton.SetActive (visible);
+		}
+	}
+
+	public void AdvanceNarrative() {
+		if (finished) {
+			GameObject.Find ("LevelHolder").GetComponent<GameControl> ().LoadNextLevel ();
+		} else {
+			narrator.NextAction ();
 		}
 	}
 }

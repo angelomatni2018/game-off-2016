@@ -113,8 +113,8 @@ public class Experiment : MonoBehaviour {
 			ChangeOpacity (sRend, 1);
 			ChangeOpacity (animSRend, 1);
 		}
-		if (id == -1) 
-			print (name + "  " + aState + "  " + dir);
+		//if (id == -1) 
+		//	print (name + "  " + aState + "  " + dir);
 		anim.SetInteger ("state", (int)aState);
 		anim.SetInteger ("dir", (int)dir);
 	}

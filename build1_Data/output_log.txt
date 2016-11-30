@@ -1,0 +1,40 @@
+Initialize engine version: 5.4.0f3 (a6d8d714de6f)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: Intel(R) HD Graphics 520 (ID=0x1916)
+    Vendor:   Intel
+    VRAM:     2111 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Matinee\Documents\genemod\build1_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading C:\Users\Matinee\Documents\genemod\build1_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+- Completed reload, in  0.067 seconds
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\Matinee\Documents\genemod\build1_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.952097 ms
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.076046 ms
+
+Unloading 129 unused Assets to reduce memory usage. Loaded Objects now: 613.
+Total: 0.572443 ms (FindLiveObjects: 0.044641 ms CreateObjectMapping: 0.046222 ms MarkObjects: 0.439703 ms  DeleteObjects: 0.041086 ms)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.186368 ms
+
+Unloading 53 unused Assets to reduce memory usage. Loaded Objects now: 474.
+Total: 0.423505 ms (FindLiveObjects: 0.030814 ms CreateObjectMapping: 0.028839 ms MarkObjects: 0.336987 ms  DeleteObjects: 0.026074 ms)
+
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 840 -> priority: 1 

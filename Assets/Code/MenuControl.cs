@@ -25,4 +25,8 @@ public class MenuControl : MonoBehaviour {
 			Destroy (gc.gameObject);
 		}
 	}
+
+	public void QuitGame() {
+		Application.Quit();
+	}
 }

@@ -9,9 +9,15 @@ public class NarratorTrigger : MonoBehaviour {
 	public bool onSocietyStart;
 	public bool onSocietyCompletion;
 	public bool onFactoryExp;
+	public bool onSameGenes;
+	public int[] expGeneMap;
+	public bool onFilledGenes;
 	public Society.SocState socState;
+	public bool checkSoc;
 	public Experiment.ExpState expState;
+	public bool checkExp;
 	public Experiment.AnimState expAnimState;
+	public bool checkAnim;
 
 	// Messages the narrator will say
 	public string[] messages;
@@ -21,13 +27,10 @@ public class NarratorTrigger : MonoBehaviour {
 	Experiment exp;
 	bool triggered;
 
-	void Setup () {
+	public void Setup () {
 		messageSeek = 0;
-		if (society.Equals(default(Society))) {
+		if (society == null) {
 			society = ((GameObject)GameObject.Find("ExperimentHolder")).GetComponent<Society> ();
-		}
-		if (onFactoryExp) { 
-			exp = society.GetExpWithId (-1);
 		}
 	}
 
@@ -35,18 +38,27 @@ public class NarratorTrigger : MonoBehaviour {
 		if (!repeatable && triggered)
 			return false;
 		if (exp != null) {
-			if (!EqualIfNotNull (expState, exp.GetState ()))
+			if (!EqualIfNotNull (expState, exp.GetState (), checkExp))
 				return false;
 			//if (!EqualIfNotNull (expAnimState, ...
 		}
-		if (!EqualIfNotNull (socState, society.GetState ()))
+		if (!EqualIfNotNull (socState, society.GetState (), checkSoc))
 			return false;
+		if (onFactoryExp && onFilledGenes && !society.GetExpWithId(-1).dna.HasFilledGenes ()) {
+			return false;
+		}
+		if (onSameGenes && !society.GetExpWithId(-1).dna.SameTypeOfExp (expGeneMap)) {
+			return false;
+		}
+		if (onSocietyCompletion && !society.GetState ().Equals (Society.SocState.Finished)) {
+			return false;
+		}
 		triggered = true;
 		return true;
 	}
 
-	public bool EqualIfNotNull<T>(T triggerVal, T currentVal) {
-		if (triggerVal.Equals (default(T)))
+	public bool EqualIfNotNull<T>(T triggerVal, T currentVal, bool check) {
+		if (!check || triggerVal.Equals (default(T)))
 			return true;
 		return triggerVal.Equals (currentVal);
 	}
@@ -58,17 +70,10 @@ public class NarratorTrigger : MonoBehaviour {
 		return true;
 	}
 
-	public bool CanTriggerOnCompletion() {
-		if (!onSocietyCompletion)
-			return false;
-		triggered = true;
-		return true;
-	}
-
 	public string GetNextMessage() {
 		if (messageSeek < messages.Length) {
 			return messages [messageSeek++];
 		}
-		return null;
+		return "";
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -42,6 +43,8 @@ public class Society : MonoBehaviour {
 
 	//Used in determining centroids for groups
 	GameObject node;
+	Vector3[] rogueSpots;
+	bool[] takenRogueSpot;
 
 	// Sorted list of experiments (based on position in sand box)
 	List<Experiment> experiments;
@@ -49,7 +52,7 @@ public class Society : MonoBehaviour {
 	Experiment factoryExp;
 
 	// State is 1 for starting interactions, 2 for pending interactions, 3 for stable
-	public enum SocState { Sleeping, Waiting, Regrouping, Attacking, Joining, CheckVictory };
+	public enum SocState { Sleeping, Waiting, Regrouping, Attacking, Joining, CheckVictory, Finished };
 	SocState state, nextState;
 	int numInteracting;
 
@@ -74,11 +77,18 @@ public class Society : MonoBehaviour {
 		foreach (GroupCondition gc in GetComponents<GroupCondition>()) {
 			gc.Setup ();
 		}
-		UI = GameObject.Find ("LabCanvas").GetComponent<UIFramework> ();
-		societyCenter = new Vector3 (UI.societyBounds.x + UI.societyBounds.z / 2, UI.societyBounds.y + UI.societyBounds.w / 2, 0);
 	}
 
-	void Start() {
+	void Start() {			
+		// Rogue node setup
+		GameObject rogueNode = (GameObject)Resources.Load ("nodes/roguenode");
+		rogueSpots = new Vector3[rogueNode.transform.childCount];
+		for (int i = 0; i < rogueNode.transform.childCount; i++) {
+			rogueSpots [i] = rogueNode.transform.GetChild (i).position;
+		}
+		// UI Setup
+		UI = GameObject.Find ("LabCanvas").GetComponent<UIFramework> ();
+		societyCenter = new Vector3 (UI.societyBounds.x + UI.societyBounds.z / 2, UI.societyBounds.y + UI.societyBounds.w / 2, 0);
 		// GameObject Setup
 		for (int i = 0; i < geneMapDefaultExps.Length; i++) {
 			Experiment e = CreateExperiment (expHolder, i, NewBoundedRandomLoc());
@@ -194,6 +204,9 @@ public class Society : MonoBehaviour {
 		List<Experiment>[] expGroups = new List<Experiment>[numInteracting];
 		GroupStats[] tempStats = new GroupStats[numInteracting];
 
+		// Reset rogue spot bindings
+		takenRogueSpot = new bool[rogueSpots.Length];
+
 		// Figure what group each experiment goes in
 		int allGroups = 0;
 		numberOfGroups = 0;
@@ -280,16 +293,23 @@ public class Society : MonoBehaviour {
 		}
 	}
 
-	// Takes a groupless experiment and makes sure they aren't near groups.
-	// If they are, it returns the nearest position away from any groups.
-	// If not, it returns their own position.
 	public Vector2 AvoidGroups(Experiment e) {
-		for (int i = NUM_EXTRA_GROUPS; i < numberOfGroups; i++) {
-			if (Vector2.Distance (e.transform.position, groupStats [i].center) < GROUP_RADIUS) {
-				return groupStats[i].center + ((Vector2)e.transform.position - groupStats [i].center).normalized * GROUP_RADIUS;
+		// Random selection (old method, but still might be used elsewhere)
+		//System.Random rnd = new System.Random ();
+		//foreach (int i in Enumerable.Range(0, rogueSpots.Length).OrderBy(r => rnd.Next())) {
+
+		int spot = 0;
+		float minDist = Mathf.Infinity;
+		Vector3 bestSpot = e.transform.position;
+		for (int i = 0; i < rogueSpots.Length; i++) {
+			if (!takenRogueSpot[i] && Vector3.Distance(rogueSpots[i], e.transform.position) < minDist) {
+				bestSpot = rogueSpots[i];
+				spot = i;
+				minDist = Vector3.Distance (rogueSpots[i], e.transform.position);
 			}
 		}
-		return e.transform.position;
+		takenRogueSpot [spot] = true;
+		return bestSpot;
 	}
 
 	public SocState GetState() {
@@ -451,8 +471,10 @@ public class Society : MonoBehaviour {
 			}
 		}
 
-		if (victory)
-			GameObject.Find ("LevelHolder").GetComponent<GameControl> ().LoadNextLevel ();
+		if (victory) {
+			state = SocState.Finished;
+			UI.ReportFinished ();
+		}
 		//print ("Victorious: " + victory);
 	}
 

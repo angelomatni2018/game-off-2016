@@ -43,7 +43,7 @@ public class DNA : MonoBehaviour {
 			Vector3 slotSize = geneHolder.GetComponent<SpriteRenderer> ().sprite.bounds.size;
 			slotSize = Vector3.Scale (slotSize, geneHolder.transform.localScale);
 			Vector3 slotCenter = slotSize / 2;
-			float xpos = (-slots.GetLength (0) / 2 + i) * slotSize.x + slotCenter.x;
+			float xpos = (-slots.GetLength (0) / 2 + i) * slotSize.x + slotCenter.x * (slots.GetLength(0) % 2 == 0 ? 1 : 0);
 			float ypos = experiment.GetComponent<Experiment> ().sHeight / 2 + slotSize.y - slotCenter.y;
 			geneHolder.transform.localPosition = new Vector3 (xpos, ypos, 0);
 			//print ("Height: " + experiment.GetComponent<Experiment> ().sHeight + "  " + slotSize.y);
@@ -86,7 +86,7 @@ public class DNA : MonoBehaviour {
 			Vector3 slotSize = geneHolder.GetComponent<SpriteRenderer> ().sprite.bounds.size;
 			slotSize = Vector3.Scale (slotSize, geneHolder.transform.localScale);
 			Vector3 slotCenter = slotSize / 2;
-			float xpos = (-slots.GetLength (0) / 2 + i) * slotSize.x + slotCenter.x;
+			float xpos = (-slots.GetLength (0) / 2 + i) * slotSize.x + slotCenter.x * (slots.GetLength(0) % 2 == 0 ? 1 : 0);
 			float ypos = experiment.sHeight / 2 + slotSize.y - slotCenter.y;
 			geneHolder.transform.localPosition = new Vector3 (xpos, ypos, 0);
 			//print ("Height: " + experiment.sHeight + "  " + slotSize.y);
@@ -161,6 +161,14 @@ public class DNA : MonoBehaviour {
 		foreach (Collider2D col in GetComponentsInChildren<Collider2D>()) {
 			col.enabled = active;
 		}
+	}
+		
+	public bool SameTypeOfExp(int[] map) {
+		for (int i = 0; i < genes.Count; i++) {
+			if (map [i] != genes [i].GetGeneType ())
+				return false;
+		}
+		return true;
 	}
 
 	public bool HasFilledGenes() {
