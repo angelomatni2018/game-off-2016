@@ -75,4 +75,10 @@ have setup maps for Shape and Color alteration, but the framework has room for o
 the organism, should I want to add them. The group and attack conditions can then take into account these new traits
 as they are already variable in nature.
 
-## Enjoy!
+## Enjoy! And here are some screenshots:
+
+![alt tag](Screenshots/Tutorial1.PNG)
+![alt tag](Screenshots/Tutorial2.PNG)
+![alt tag](Screenshots/LevelSet1.PNG)
+
+
