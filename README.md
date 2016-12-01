@@ -18,7 +18,7 @@ color, in order to achieve a certain state of the society.
 What you can do:
 
 * Introduce new organisms into the society tailored to your specifications
-* Join organisms in the society and mangle their genes and change them wildly
+* Join organisms in the society and mangle their genes, changing them wildly
 
 What you can't do:
 
