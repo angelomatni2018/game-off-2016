@@ -232,8 +232,8 @@ public class Experiment : MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		//print ("Num left: " + society.NumInteracting() + "  " + state);
-		if (society.NumInteracting () != 0)
+		print ("Num left: " + society.NumInteracting() + " Can interact: " + society.CanInteractWith(this));
+		if (!society.CanInteractWith(this))
 			return;
 		if (state == ExpState.Showing) {
 			society.RemoveFromSelected (this);

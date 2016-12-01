@@ -398,6 +398,10 @@ public class Society : MonoBehaviour {
 		return com / num;
 	}
 
+	public bool CanInteractWith(Experiment e) {
+		return numInteracting == 0 && experiments.IndexOf (e) >= 0;
+	}
+
 	public void TriggerSpawn() {
 		if (factoryExp.dna.HasFilledGenes()) {
 			AddExperimentToWorld (factoryExp);
@@ -425,7 +429,7 @@ public class Society : MonoBehaviour {
 		return true;
 	}
 
-	public void AddExperimentToWorld(Experiment e) {
+	void AddExperimentToWorld(Experiment e) {
 		e.id = experiments.Count;
 		experiments.Add (e);
 		e.transform.parent = expHolder;
@@ -433,7 +437,7 @@ public class Society : MonoBehaviour {
 		state = SocState.Regrouping;
 	}
 
-	public void AddFactoryExperiment() {
+	void AddFactoryExperiment() {
 		factoryExp = CreateExperiment(factoryHolder, -1, new Vector3(4f,10.5f));
 		factoryExp.SetState(Experiment.ExpState.Editing);
 		factoryExp.dna.Setup ();
