@@ -12,6 +12,7 @@ public class UIFramework : MonoBehaviour {
 	Society society;
 	Narrator narrator;
 	GameObject joinButton, unjoinButton, continueButton;
+	GameObject bindings;
 
 	bool finished;
 
@@ -21,6 +22,8 @@ public class UIFramework : MonoBehaviour {
 		joinButton = GameObject.Find ("JoinButton");
 		unjoinButton = GameObject.Find ("UnjoinButton");
 		continueButton = GameObject.Find ("ContinueButton");
+		bindings = GameObject.Find ("BindingsHelp");
+		bindings.SetActive (false);
 		joinButton.SetActive (true);
 		unjoinButton.SetActive (false);
 
@@ -45,6 +48,10 @@ public class UIFramework : MonoBehaviour {
 		}
 	}
 
+	public void ToggleBindings() {
+		bindings.SetActive (!bindings.activeInHierarchy);
+	}
+
 	public void QuitLevel() {
 		UnityEngine.SceneManagement.SceneManager.LoadScene ("mainmenu");
 	}
@@ -57,6 +64,7 @@ public class UIFramework : MonoBehaviour {
 		continueButton.SetActive (true);
 		continueButton.GetComponentInChildren<Text> ().text = "Next Level";
 		finished = true;
+		print ("Finished");
 	}
 
 	public void ToggleContinueButton(bool visible) {

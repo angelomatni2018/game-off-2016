@@ -16,7 +16,6 @@ public class AIAction {
 	}
 
 	protected virtual bool End() {
-		e.GetSoc().DecInteractor();
 		return false;
 	}
 }

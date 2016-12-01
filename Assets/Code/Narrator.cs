@@ -27,7 +27,9 @@ public class Narrator : MonoBehaviour {
 		levelTime = 0;
 		activeMessager = null;
 		UI = GameObject.Find ("LabCanvas").GetComponent<UIFramework> ();
+		UI.ToggleContinueButton (false);
 		narratorText = GameObject.Find ("NarratorText").GetComponent<Text>();
+		narratorText.text = "";
 		textOptionsHolder = GameObject.Find ("TextOptionsHolder");
 		Experiment e = GetComponent<Experiment> ();
 		e.BaseSetup ();
@@ -49,24 +51,25 @@ public class Narrator : MonoBehaviour {
 
 	void Update() {
 		if (Input.GetKeyDown (KeyCode.Return)) {
-			NextAction ();
+			UI.AdvanceNarrative ();
 		}
 
 		levelTime += Time.deltaTime;
 		if (levelTime < START_WAIT)
 			return;
 	
-		if (activeMessager == null) {
-			foreach (NarratorTrigger nt in nts) {
-				if (nt.CanTrigger ()) {
-					BeginMessaging (nt);
-				}
+		foreach (NarratorTrigger nt in nts) {
+			if (nt != activeMessager && nt.CanTrigger ()) {
+				BeginMessaging (nt);
 			}
-		} else if (messageIndex >= 0 && (timer += Time.deltaTime) < TEXT_PRINT_RATE) {
+		}
+
+		if (activeMessager != null && messageIndex >= 0 && (timer += Time.deltaTime) < TEXT_PRINT_RATE) {
 			timer = 0;
 			if (messageIndex < currentMessage.Length) {
 				narratorText.text += currentMessage [messageIndex++];
 			} else if ((currentMessage = activeMessager.GetNextMessage ().ToCharArray ()).Length > 0) {
+				UI.ToggleContinueButton (true);
 				messageIndex = -1;
 			} else {
 				EndMessaging ();
@@ -80,7 +83,6 @@ public class Narrator : MonoBehaviour {
 		messageIndex = 0;
 		narratorText.text = "";
 		currentMessage = nt.GetNextMessage ().ToCharArray();
-		UI.ToggleContinueButton (true);
 	}
 
 	void EndMessaging() {
@@ -91,6 +93,7 @@ public class Narrator : MonoBehaviour {
 
 	public void NextAction() {
 		if (messageIndex == -1) {
+			UI.ToggleContinueButton (false);
 			narratorText.text = "";
 			messageIndex = 0;
 		}

@@ -12,6 +12,9 @@ public class NarratorTrigger : MonoBehaviour {
 	public bool onSameGenes;
 	public int[] expGeneMap;
 	public bool onFilledGenes;
+	public bool onNumExps;
+	public bool onAttack;
+	public int numExpsInSociety;
 	public Society.SocState socState;
 	public bool checkSoc;
 	public Experiment.ExpState expState;
@@ -37,12 +40,19 @@ public class NarratorTrigger : MonoBehaviour {
 	public bool CanTrigger() {
 		if (!repeatable && triggered)
 			return false;
+		if (onNumExps && numExpsInSociety != society.GetNumOfExps ()) {
+			return false;
+		}
 		if (exp != null) {
 			if (!EqualIfNotNull (expState, exp.GetState (), checkExp))
 				return false;
 			//if (!EqualIfNotNull (expAnimState, ...
 		}
-		if (!EqualIfNotNull (socState, society.GetState (), checkSoc))
+		if (!EqualIfNotNull (socState, society.GetState (), checkSoc)) {
+			return false;
+		}
+		print(onAttack + "  " + (!society.ExpsAreAttackingEachOther ()));
+		if (onAttack && !society.ExpsAreAttackingEachOther ())
 			return false;
 		if (onFactoryExp && onFilledGenes && !society.GetExpWithId(-1).dna.HasFilledGenes ()) {
 			return false;
@@ -50,6 +60,7 @@ public class NarratorTrigger : MonoBehaviour {
 		if (onSameGenes && !society.GetExpWithId(-1).dna.SameTypeOfExp (expGeneMap)) {
 			return false;
 		}
+		
 		if (onSocietyCompletion && !society.GetState ().Equals (Society.SocState.Finished)) {
 			return false;
 		}

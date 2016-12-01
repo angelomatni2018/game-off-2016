@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Linq;
 using System.Collections;
@@ -12,11 +13,13 @@ public class Society : MonoBehaviour {
 	// Dictate groups experiments will be in
 	// Dictate actinos based on groupings to them
 	public float GROUP_RADIUS;
+	static float EXP_RADIUS = 2f;
 	public int NUM_BASE_TYPES;
 	public int NUM_BASES_PER_GENE;
 	public int MAX_EXP_JOIN;
 
 	public UIFramework UI;
+	GameObject SocStatus;
 	Vector3 societyCenter;
 
 	public string[] geneMap;
@@ -42,7 +45,7 @@ public class Society : MonoBehaviour {
 	Transform tempExp;
 
 	//Used in determining centroids for groups
-	GameObject node;
+	GameObject node, groupMarker;
 	Vector3[] rogueSpots;
 	bool[] takenRogueSpot;
 
@@ -57,8 +60,6 @@ public class Society : MonoBehaviour {
 	int numInteracting;
 
 	GroupStats[] groupStats;
-	GroupStats rogueGroupStats;
-	GroupStats attackGroupStats;
 	int numberOfGroups;
 
 	// Use this for initialization
@@ -86,9 +87,14 @@ public class Society : MonoBehaviour {
 		for (int i = 0; i < rogueNode.transform.childCount; i++) {
 			rogueSpots [i] = rogueNode.transform.GetChild (i).position;
 		}
+		groupMarker = Resources.Load ("nodes/groupmarker") as GameObject;
+
 		// UI Setup
 		UI = GameObject.Find ("LabCanvas").GetComponent<UIFramework> ();
+		SocStatus = GameObject.Find ("SocietyStatus");
+		SocStatus.SetActive (false);
 		societyCenter = new Vector3 (UI.societyBounds.x + UI.societyBounds.z / 2, UI.societyBounds.y + UI.societyBounds.w / 2, 0);
+
 		// GameObject Setup
 		for (int i = 0; i < geneMapDefaultExps.Length; i++) {
 			Experiment e = CreateExperiment (expHolder, i, NewBoundedRandomLoc());
@@ -121,32 +127,42 @@ public class Society : MonoBehaviour {
 		//print (numInteracting);
 		switch (state) {
 		case SocState.CheckVictory:
+			ActivateStatusUIWith (false, "");
 			CheckForVictory ();
-			state = SocState.Sleeping;
 			break;
 		case SocState.Waiting:
-			if (numInteracting == 0)
+			if (numInteracting == 0) {
 				state = nextState;
+			}
 			break;
 		case SocState.Regrouping:
 			BucketExpsIntoGroups ();
 			foreach (Experiment e in experiments) {
 				e.SetState (Experiment.ExpState.Moving);
 			}
+			ActivateStatusUIWith (true, "Grouping");
 			state = SocState.Waiting;
 			nextState = SocState.Attacking;
+			DrawGroupMarkers ();
 			break;
 		case SocState.Attacking:
+			ActivateStatusUIWith (true, "Attacking");
 			UpdateExpAttacks ();
 			state = SocState.Waiting;
 			nextState = SocState.CheckVictory;
 			break;
 		case SocState.Joining:
+			EraseGroupMarkers ();
 			JoinSelectedExps ();
 			state = SocState.Waiting;
 			nextState = SocState.Regrouping;
 			break;
 		}
+	}
+		
+	void ActivateStatusUIWith(bool active, string text) {
+		SocStatus.SetActive (active);
+		SocStatus.GetComponentInChildren<Text> ().text = text;
 	}
 
 	void InsertExpIntoList(Experiment e) {
@@ -303,6 +319,8 @@ public class Society : MonoBehaviour {
 		Vector3 bestSpot = e.transform.position;
 		for (int i = 0; i < rogueSpots.Length; i++) {
 			if (!takenRogueSpot[i] && Vector3.Distance(rogueSpots[i], e.transform.position) < minDist) {
+				if (NearGroup (rogueSpots [i]))
+					continue;
 				bestSpot = rogueSpots[i];
 				spot = i;
 				minDist = Vector3.Distance (rogueSpots[i], e.transform.position);
@@ -310,6 +328,34 @@ public class Society : MonoBehaviour {
 		}
 		takenRogueSpot [spot] = true;
 		return bestSpot;
+	}
+
+	bool NearGroup(Vector3 pos) {
+		print (groupStats.Length);
+		foreach (Experiment e in experiments) {
+			if (e.GetGroup () != ROGUE_GROUP_ID)
+				continue;
+			if (Vector3.Distance (e.transform.position, pos) < EXP_RADIUS)
+				return true;
+		}
+		for (int i = NUM_EXTRA_GROUPS; i < numberOfGroups; i++) {
+			if (Vector3.Distance (groupStats [i].center, pos) < GROUP_RADIUS)
+				return true;
+		}
+		return false;
+	}
+
+	void DrawGroupMarkers() {
+		GameObject holder = new GameObject ();
+		GameObject.Instantiate (holder);
+		holder.name = "GroupMarkerHolder";
+		for (int i = NUM_EXTRA_GROUPS; i < numberOfGroups; i++) {
+			GameObject.Instantiate (groupMarker, groupStats [i].center, Quaternion.identity, holder.transform);
+		}
+	}
+
+	void EraseGroupMarkers() {
+		Destroy (GameObject.Find ("GroupMarkerHolder"));
 	}
 
 	public SocState GetState() {
@@ -326,6 +372,10 @@ public class Society : MonoBehaviour {
 
 	public int GetNumOfExps() {
 		return experiments.Count;
+	}
+
+	public bool ExpsAreAttackingEachOther() {
+		return groupStats[GENERAL_ATTACK_GROUP_ID] != null && groupStats [GENERAL_ATTACK_GROUP_ID].numToSort > 0;
 	}
 
 	public void DecInteractor() {
@@ -447,33 +497,38 @@ public class Society : MonoBehaviour {
 			}
 			counter = 0;
 		}
-
-		for (int i = 0; i < goalGeneMapping.Length; i++) {
-			for (int j = 0; j < experiments.Count; j++) {
-				if (checkedOff [j])
-					continue;
-				allMatch = true;
-				for (int k = 0; k < geneMap.Length; k++) {
-					if (values [j, k] != goalGeneMapping [i].mapList[k]) {
-						allMatch = false;
+		if (goalGeneMapping.Length == 0 && GetNumOfExps() > 0) {
+			victory = false;
+		} else {
+			for (int i = 0; i < goalGeneMapping.Length; i++) {
+				for (int j = 0; j < experiments.Count; j++) {
+					if (checkedOff [j])
+						continue;
+					allMatch = true;
+					for (int k = 0; k < geneMap.Length; k++) {
+						if (values [j, k] != goalGeneMapping [i].mapList [k]) {
+							allMatch = false;
+							break;
+						}
+					}
+					if (allMatch) {
+						checkedOff [j] = true;
+						numCheckedOff++;
 						break;
 					}
 				}
-				if (allMatch) {
-					checkedOff [j] = true;
-					numCheckedOff++;
+				if (numCheckedOff == i) {
+					victory = false;
 					break;
 				}
-			}
-			if (numCheckedOff == i) {
-				victory = false;
-				break;
 			}
 		}
 
 		if (victory) {
 			state = SocState.Finished;
 			UI.ReportFinished ();
+		} else {
+			state = SocState.Sleeping;
 		}
 		//print ("Victorious: " + victory);
 	}

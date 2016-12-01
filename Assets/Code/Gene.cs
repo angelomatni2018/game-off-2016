@@ -130,7 +130,7 @@ public static class GeneValues {
 		Resources.Load("shapes/triangle") as GameObject,
 		Resources.Load("shapes/square") as GameObject,
 		Resources.Load("shapes/diamond") as GameObject,
-		Resources.Load("shapes/triangle") as GameObject,
+		Resources.Load("shapes/circle") as GameObject,
 		Resources.Load("shapes/triangle") as GameObject,
 		Resources.Load("shapes/triangle") as GameObject,
 		Resources.Load("shapes/triangle") as GameObject,

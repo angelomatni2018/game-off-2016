@@ -136,9 +136,11 @@ public class Experiment : MonoBehaviour {
 	}
 
 	public void RemoveAct(ExpState newState) {
-		society.DecInteractor ();
-		currentAct = null;
-		state = newState;
+		if (currentAct != null) {
+			society.DecInteractor ();
+			currentAct = null;
+			state = newState;
+		}
 	}
 
 	public void SetState(ExpState es) {

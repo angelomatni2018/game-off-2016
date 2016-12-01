@@ -17,4 +17,9 @@ public class TeleportToAction : AIAction {
 		}
 		return true;
 	}
+
+	protected override bool End() {
+		e.GetSoc().DecInteractor();
+		return false;
+	}
 }

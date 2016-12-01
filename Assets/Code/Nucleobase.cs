@@ -60,6 +60,8 @@ public class Nucleobase : MonoBehaviour {
 		Cursor.visible = true;
 		if (d) {
 			d.AddToGene (g, s, this);
+		} else {
+			transform.position = startLoc;
 		}
 	}
 
